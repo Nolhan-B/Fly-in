@@ -1,11 +1,28 @@
-from parser import MapParser
+"""Entry point for the Fly-in drone routing system."""
+
 import sys
+from parser import MapParser
+from simulation import Simulation
 
-map_path = "maps/easy/03_basic_capacity.txt"
-try:
-    drone_map = MapParser(map_path).parse()
-except Exception as e:
-    print(f'Error happened while parsing: {e}')
-    sys.exit()
 
-print(drone_map)
+def main() -> None:
+    """Parse map file and run the simulation."""
+    if len(sys.argv) != 2:
+        print("Usage: python3 main.py <map_file>")
+        sys.exit(1)
+
+    try:
+        drone_map = MapParser(sys.argv[1]).parse()
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+    simulation = Simulation(drone_map)
+    # print(simulation.drones)
+    # print(simulation.zones)
+    # print(simulation.can_drone_go_on_zone(simulation.drones[0], simulation.zones[1]))
+    simulation.run(drone_map)
+    print(simulation.drones)
+
+if __name__ == "__main__":
+    main()

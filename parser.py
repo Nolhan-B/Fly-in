@@ -79,11 +79,13 @@ class DroneMap:
                     neighbors.append(other)
         return neighbors
 
-def _parse_metadata(block: str) -> dict[str, str]:
-    """Parse a metadata string like 'zone=normal color=red max_drones=2'.
+_KNOWN_ZONE_KEYS = {"zone", "color", "max_drones"}
+_KNOWN_CONN_KEYS = {"max_link_capacity"}
+_ALL_KNOWN_KEYS = _KNOWN_ZONE_KEYS | _KNOWN_CONN_KEYS
 
-    The brackets are expected to be already stripped by the caller.
-    """
+
+def _parse_metadata(block: str) -> dict[str, str]:
+    """Parse a metadata string like 'zone=normal color=red max_drones=2'."""
     meta: dict[str, str] = {}
     for token in block.split():
         if "=" not in token:
@@ -91,6 +93,13 @@ def _parse_metadata(block: str) -> dict[str, str]:
         key, _, value = token.partition("=")
         if not key or not value:
             raise ValueError(f"Malformed metadata pair: '{token}'")
+        if key not in _ALL_KNOWN_KEYS:
+            raise ValueError(f"Unknown metadata key: '{key}'")
+        if "=" in value:
+            raise ValueError(
+                f"Metadata value for '{key}' looks malformed: '{value}'. "
+                f"Missing space between metadata entries?"
+            )
         meta[key] = value
     return meta
 
