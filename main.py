@@ -22,7 +22,7 @@ def main() -> None:
     # print(simulation.zones)
     # print(simulation.can_drone_go_on_zone(simulation.drones[0], simulation.zones[1]))
     simulation.run(drone_map)
-    print(simulation.drones)
-
+    # print(simulation.drones)
+#
 if __name__ == "__main__":
     main()
