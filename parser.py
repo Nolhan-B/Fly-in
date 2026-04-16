@@ -51,6 +51,11 @@ class Connection:
     zone_b: str
     max_link_capacity: int = 1
 
+    @property
+    def name(self) -> str:
+        """Return the canonical name of this connection."""
+        return f"{self.zone_a}-{self.zone_b}"
+
     def involves(self, name: str) -> bool:
         """Return True if this connection touches the given zone name."""
         return self.zone_a == name or self.zone_b == name

@@ -27,4 +27,7 @@ def main() -> None:
     # print(simulation.drones)
 #
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (Exception, KeyboardInterrupt) as e:
+        print(f"Error caught! {e}")

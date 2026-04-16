@@ -109,5 +109,5 @@ class Simulation:
                     turn_moves.append(f"D{d.id}-{d.current_zone}")
                     d.target_zone = None
                     continue
-
-            print(" ".join(turn_moves))
+            if turn_moves:
+                print(" ".join(turn_moves))
