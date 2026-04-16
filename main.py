@@ -14,16 +14,16 @@ def main() -> None:
 
     try:
         drone_map = MapParser(sys.argv[1]).parse()
+        simulation = Simulation(drone_map)
+        simulation.run(drone_map)
+        run_visual(drone_map)
     except ValueError as e:
         print(f"Error: {e}")
         sys.exit(1)
 
-    simulation = Simulation(drone_map)
     # print(simulation.drones)
     # print(simulation.zones)
     # print(simulation.can_drone_go_on_zone(simulation.drones[0], simulation.zones[1]))
-    simulation.run(drone_map)
-    run_visual(drone_map)
     # print(simulation.drones)
 #
 if __name__ == "__main__":

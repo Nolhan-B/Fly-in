@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
+import sys
 
 
 class ZoneType(Enum):
@@ -251,10 +252,14 @@ class MapParser:
 
     def parse(self) -> DroneMap:
         """Parse the file and return a DroneMap. Raise ValueError on any error."""
-        lines = self._read_lines()
-        if not lines:
-            raise ValueError("File is empty or contains only comments.")
-        return self._build_map(lines)
+        try:
+            lines = self._read_lines()
+            if not lines:
+                raise ValueError("File is empty or contains only comments.")
+            return self._build_map(lines)
+        except (ValueError, FileNotFoundError) as e:
+            print("Parsing error:", e)
+            sys.exit(0)
 
     def _read_lines(self) -> list[tuple[int, str]]:
         """Read file lines, strip comments and blank lines, keep line numbers."""
