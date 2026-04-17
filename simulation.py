@@ -47,6 +47,24 @@ class Simulation:
                 return conn
         return None
 
+    def get_drones_from_zone(self, zone_name: str) -> list[Drone]:
+        return [drone for drone in self.drones
+                if drone.current_zone == zone_name]
+
+    def count_drones_on_connection(
+        self,
+        zone_a: str,
+        zone_b: str,
+    ) -> int:
+        target = {zone_a, zone_b}
+
+        return sum(
+            1
+            for d in self.drones
+            if {d.current_zone, d.target_zone} == target
+            and d.in_flight
+        )
+
     def can_drone_enter_zone(
         self, from_zone: str, zone_name: str,
         drone_map: DroneMap, turn_moves: list[str]
