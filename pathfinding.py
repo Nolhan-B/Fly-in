@@ -1,28 +1,43 @@
 import heapq
 from parser import DroneMap, ZoneType
+from typing import List, Tuple
 
 
 def dijkstra(drone_map: DroneMap, start: str, end: str) -> list[str]:
-    heap = [(0, start, [start])]
-    visited = set()
+    counter = 0
+
+    heap: List[Tuple[float, int, str, tuple[str, ...]]] = [
+        (0.0, counter, start, (start,))
+    ]
+    visited: set[str] = set()
 
     while heap:
-        cost, current, path = heapq.heappop(heap)
+        cost, _, current, path = heapq.heappop(heap)
 
         if current in visited:
             continue
         visited.add(current)
 
         if current == end:
-            return path
+            return list(path)
 
         for neighbor in drone_map.get_neighbors(current):
-            if neighbor.name not in visited:
-                bonus = -0.3 if neighbor.zone_type == ZoneType.PRIORITY else 0
-                new_cost = cost + neighbor.movement_cost() + bonus
-                heapq.heappush(
-                    (heap, (new_cost, neighbor.name, path + [neighbor.name]))
-                )
+            if neighbor.name in visited:
+                continue
+
+            bonus = -0.3 if neighbor.zone_type == ZoneType.PRIORITY else 0.0
+            new_cost = cost + neighbor.movement_cost() + bonus
+
+            counter += 1
+            heapq.heappush(
+                heap,
+                (
+                    new_cost,
+                    counter,
+                    neighbor.name,
+                    path + (neighbor.name,),
+                ),
+            )
 
     return []
 
