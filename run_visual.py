@@ -1,5 +1,3 @@
-"""Pygame visualizer for the Fly-in drone simulation."""
-
 from __future__ import annotations
 
 import math
@@ -7,29 +5,27 @@ import pygame
 from parser import DroneMap, Zone, ZoneType
 from simulation import Simulation, Drone
 
-# ── Display constants ──────────────────────────────────────────────────────────
-MARGIN   = 100
-FPS      = 3
-ZONE_R   = 40
-DRONE_R  = 13
-PANEL_H  = 90
+MARGIN = 100
+FPS = 3
+ZONE_R = 40
+DRONE_R = 13
+PANEL_H = 90
 
-# Colours
-BG_COLOR     = (15, 15, 25)
-PANEL_COLOR  = (28, 28, 45)
-CONN_COLOR   = (80, 80, 120)
+BG_COLOR = (15, 15, 25)
+PANEL_COLOR = (28, 28, 45)
+CONN_COLOR = (80, 80, 120)
 CONN_CAP_COL = (180, 180, 80)
-DRONE_COLOR  = (220, 60, 60)
-TEXT_DARK    = (10, 10, 10)
-TEXT_LIGHT   = (220, 220, 220)
-TEXT_DIM     = (110, 110, 130)
+DRONE_COLOR = (220, 60, 60)
+TEXT_DARK = (10, 10, 10)
+TEXT_LIGHT = (220, 220, 220)
+TEXT_DIM = (110, 110, 130)
 FINISH_COLOR = (80, 220, 120)
 
 TYPE_COLORS: dict[ZoneType, tuple[int, int, int]] = {
     ZoneType.NORMAL:     (190, 210, 255),
     ZoneType.RESTRICTED: (255, 185,  80),
     ZoneType.PRIORITY:   (140, 240, 160),
-    ZoneType.BLOCKED:    ( 55,  55,  55),
+    ZoneType.BLOCKED:    (55,  55,  55),
 }
 
 TYPE_LABEL: dict[ZoneType, str] = {
@@ -90,28 +86,27 @@ def run_visual(drone_map: DroneMap) -> None:
     pygame.init()
     pygame.font.init()
 
-    font       = pygame.font.SysFont("monospace", 14)
+    font = pygame.font.SysFont("monospace", 14)
     font_small = pygame.font.SysFont("monospace", 11)
-    font_bold  = pygame.font.SysFont("monospace", 15, bold=True)
-    font_big   = pygame.font.SysFont("monospace", 26, bold=True)
+    font_bold = pygame.font.SysFont("monospace", 15, bold=True)
+    font_big = pygame.font.SysFont("monospace", 26, bold=True)
 
     xs = [z.x for z in drone_map.zones.values()]
     ys = [z.y for z in drone_map.zones.values()]
     min_x, max_x = min(xs), max(xs)
     min_y, max_y = min(ys), max(ys)
 
-    # Auto-fit cell size to a max window of 1400×900
     max_w, max_h = 1400, 900 - PANEL_H
     span_x = max(max_x - min_x, 1)
     span_y = max(max_y - min_y, 1)
     cell = min(
-        (max_w - 2 * MARGIN) // span_x,
-        (max_h - 2 * MARGIN) // span_y,
+        (max_w - 2 * MARGIN),
+        (max_h - 2 * MARGIN),
         200,
     )
-    cell = max(cell, 80)  # never too small
+    cell = max(cell, 80)
 
-    width  = 2 * MARGIN + span_x * cell + ZONE_R * 2
+    width = 2 * MARGIN + span_x * cell + ZONE_R * 2
     height = 2 * MARGIN + span_y * cell + ZONE_R * 2 + PANEL_H
 
     screen = pygame.display.set_mode((width, height))
@@ -123,10 +118,10 @@ def run_visual(drone_map: DroneMap) -> None:
         for name, z in drone_map.zones.items()
     }
 
-    sim        = Simulation(drone_map)
-    turn       = 0
-    finished   = False
-    auto_play  = False
+    sim = Simulation(drone_map)
+    turn = 0
+    finished = False
+    auto_play = False
 
     def draw_frame() -> None:
         """Render the current simulation state to screen."""
@@ -140,9 +135,12 @@ def run_visual(drone_map: DroneMap) -> None:
             pygame.draw.line(screen, CONN_COLOR, pa, pb, 2)
             if conn.max_link_capacity > 1:
                 mx, my = _midpoint(pa, pb)
-                _draw_centered(screen, font_small,
-                                f"×{conn.max_link_capacity}",
-                                CONN_CAP_COL, mx, my)
+                _draw_centered(
+                               screen,
+                               font_small,
+                               f"×{conn.max_link_capacity}",
+                               CONN_CAP_COL, mx, my
+                               )
 
         for name, zone in drone_map.zones.items():
             cx, cy = pos[name]
@@ -163,12 +161,25 @@ def run_visual(drone_map: DroneMap) -> None:
             # type badge
             type_lbl = TYPE_LABEL.get(zone.zone_type, "")
             if type_lbl:
-                _draw_centered(screen, font_small, type_lbl, (80, 40, 10), cx, cy + 4)
-                _draw_centered(screen, font_small,
-                                f"d:{zone.max_drones}", TEXT_DARK, cx, cy + 16)
+                _draw_centered(
+                               screen,
+                               font_small,
+                               type_lbl,
+                               (80, 40, 10),
+                               cx, cy + 4
+                               )
+                _draw_centered(
+                                screen,
+                                font_small,
+                                f"d:{zone.max_drones}",
+                                TEXT_DARK, cx, cy + 16
+                               )
             else:
-                _draw_centered(screen, font_small,
-                                f"d:{zone.max_drones}", TEXT_DARK, cx, cy + 8)
+                _draw_centered(
+                               screen,
+                               font_small,
+                               f"d:{zone.max_drones}", TEXT_DARK, cx, cy + 8
+                               )
 
         # drones
         zone_groups: dict[str, list[Drone]] = {}
@@ -179,7 +190,7 @@ def run_visual(drone_map: DroneMap) -> None:
             cx, cy = pos[zone_name]
             n = len(drones)
             for i, d in enumerate(drones):
-                angle  = (2 * math.pi * i / max(n, 1)) - math.pi / 2
+                angle = (2 * math.pi * i / max(n, 1)) - math.pi / 2
                 radius = 0 if n == 1 else ZONE_R + DRONE_R + 4
                 dx = int(radius * math.cos(angle))
                 dy = int(radius * math.sin(angle))
@@ -190,7 +201,12 @@ def run_visual(drone_map: DroneMap) -> None:
 
         panel_y = height - PANEL_H
         pygame.draw.rect(screen, PANEL_COLOR, (0, panel_y, width, PANEL_H))
-        pygame.draw.line(screen, (70, 70, 100), (0, panel_y), (width, panel_y), 1)
+        pygame.draw.line(
+                         screen,
+                         (70, 70, 100),
+                         (0, panel_y),
+                         (width, panel_y),
+                         1)
 
         done = sum(1 for d in sim.drones if d.current_zone == sim.end_zone)
 
@@ -199,7 +215,12 @@ def run_visual(drone_map: DroneMap) -> None:
 
                    f"   Drones: {done}/{drone_map.nb_drones}")
             surf = font_big.render(msg, True, FINISH_COLOR)
-            screen.blit(surf, surf.get_rect(center=(width // 2, panel_y + PANEL_H // 2)))
+            screen.blit(
+                        surf,
+                        surf.get_rect(
+                            center=(width // 2, panel_y + PANEL_H // 2)
+                            )
+                        )
         else:
             line1 = (f"Turn: {turn}   "
                      f"Arrived: {done}/{drone_map.nb_drones}")
@@ -208,11 +229,9 @@ def run_visual(drone_map: DroneMap) -> None:
                         (14, panel_y + 10))
             screen.blit(font.render(line2, True, TEXT_DIM),
                         (14, panel_y + 36))
-            lx = width - 12
 
         pygame.display.flip()
 
-    # ── step ──────────────────────────────────────────────────────────────────
     def step() -> None:
         """Advance the simulation by one turn."""
         nonlocal turn, finished
@@ -225,9 +244,11 @@ def run_visual(drone_map: DroneMap) -> None:
             if d.current_zone == sim.end_zone:
                 continue
 
-            # restricted zone: wait one extra turn
             current_zone_obj = sim.zones.get(d.current_zone)
-            if current_zone_obj and current_zone_obj.zone_type == ZoneType.RESTRICTED:
+            if (
+                current_zone_obj
+                and current_zone_obj.zone_type == ZoneType.RESTRICTED
+            ):
                 if d.turns_waiting == 0:
                     d.turns_waiting = 1
                     continue
@@ -251,7 +272,6 @@ def run_visual(drone_map: DroneMap) -> None:
             finished = True
             print(f"\n=== FINISHED in {turn} turns ===")
 
-    # ── event loop ────────────────────────────────────────────────────────────
     draw_frame()
     while True:
         for event in pygame.event.get():
