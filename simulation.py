@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathfinding import find_multiple_paths
-from parser import DroneMap, Zone, Connection, ZoneType
+from parser import DroneMap, Connection, ZoneType
 
 
 @dataclass
@@ -39,13 +39,20 @@ class Simulation:
         for i, drone in enumerate(self.drones):
             drone.path = self.paths[i % len(self.paths)]
 
-    def get_connection(self, zone_a: str, zone_b: str, drone_map: DroneMap) -> Connection | None:
+    def get_connection(self,
+                       zone_a: str,
+                       zone_b: str,
+                       drone_map: DroneMap) -> Connection | None:
         for conn in drone_map.connections:
             if {conn.zone_a, conn.zone_b} == {zone_a, zone_b}:
                 return conn
         return None
 
-    def can_drone_enter_zone(self, from_zone: str, zone_name: str, drone_map: DroneMap, turn_moves: list[str]) -> bool:
+    def can_drone_enter_zone(self,
+                             from_zone: str,
+                             zone_name: str,
+                             drone_map: DroneMap,
+                             turn_moves: list[str]) -> bool:
         if zone_name == self.end_zone:
             return True
 
@@ -62,7 +69,8 @@ class Simulation:
 
         conn = self.get_connection(from_zone, zone_name, drone_map)
         if conn:
-            already_using = sum(1 for m in turn_moves if m.endswith(f"-{zone_name}"))
+            already_using = sum(1 for m in turn_moves
+                                if m.endswith(f"-{zone_name}"))
             if already_using >= conn.max_link_capacity:
                 return False
 
@@ -71,7 +79,10 @@ class Simulation:
     def run(self, drone_map: DroneMap) -> None:
         assert drone_map.end_zone is not None
 
-        while not all(d.current_zone == drone_map.end_zone for d in self.drones):
+        while not all(
+            d.current_zone == drone_map.end_zone
+            for d in self.drones
+        ):
             turn_moves = []
 
             self.drones.sort(key=lambda d: -d.path_index)
@@ -79,12 +90,15 @@ class Simulation:
             for d in self.drones:
                 current_zone_obj = self.zones.get(d.current_zone)
 
-                if current_zone_obj and current_zone_obj.zone_type == ZoneType.RESTRICTED:
-                    if d.turns_waiting == 0:
-                        d.turns_waiting = 1
-                        continue
-                    else:
-                        d.turns_waiting = 0
+            if (
+                current_zone_obj
+                and current_zone_obj.zone_type == ZoneType.RESTRICTED
+            ):
+                if d.turns_waiting == 0:
+                    d.turns_waiting = 1
+                    continue
+                else:
+                    d.turns_waiting = 0
 
                 if d.current_zone == self.end_zone:
                     continue
@@ -94,12 +108,12 @@ class Simulation:
 
                 next_zone = d.path[d.path_index + 1]
 
-                conn = self.get_connection(d.current_zone, next_zone, drone_map)
+                con = self.get_connection(d.current_zone, next_zone, drone_map)
 
-                if not d.in_flight and conn:
+                if not d.in_flight and con:
                     d.in_flight = True
                     d.target_zone = next_zone
-                    turn_moves.append(f"D{d.id}-{conn.name}")
+                    turn_moves.append(f"D{d.id}-{con.name}")
                     continue
 
                 if d.in_flight:
