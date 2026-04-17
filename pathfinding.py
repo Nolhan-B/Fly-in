@@ -20,11 +20,16 @@ def dijkstra(drone_map: DroneMap, start: str, end: str) -> list[str]:
             if neighbor.name not in visited:
                 bonus = -0.3 if neighbor.zone_type == ZoneType.PRIORITY else 0
                 new_cost = cost + neighbor.movement_cost() + bonus
-                heapq.heappush(heap, (new_cost, neighbor.name, path + [neighbor.name]))
+                heapq.heappush(
+                    (heap, (new_cost, neighbor.name, path + [neighbor.name]))
+                )
 
     return []
 
-def find_multiple_paths(drone_map: DroneMap, start: str, end: str, max_paths: int = 3) -> list[list[str]]:
+
+def find_multiple_paths(
+    drone_map: DroneMap, start: str, end: str, max_paths: int = 3
+) -> list[list[str]]:
     paths: list[list[str]] = []
     used_edges: set[tuple[str, str]] = set()
 
@@ -43,7 +48,10 @@ def find_multiple_paths(drone_map: DroneMap, start: str, end: str, max_paths: in
     return paths
 
 
-def dijkstra_with_avoid(drone_map: DroneMap, start: str, end: str, avoid_edges: set[tuple[str, str]]) -> list[str]:
+def dijkstra_with_avoid(
+    drone_map: DroneMap, start: str,
+    end: str, avoid_edges: set[tuple[str, str]]
+) -> list[str]:
     import heapq
 
     heap = [(0, start, [start])]
@@ -67,6 +75,9 @@ def dijkstra_with_avoid(drone_map: DroneMap, start: str, end: str, avoid_edges: 
                 extra_cost = 5
 
             new_cost = cost + neighbor.movement_cost() + extra_cost
-            heapq.heappush(heap, (new_cost, neighbor.name, path + [neighbor.name]))
+            heapq.heappush(
+                           heap,
+                           (new_cost, neighbor.name, path + [neighbor.name])
+                           )
 
     return []

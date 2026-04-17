@@ -85,6 +85,7 @@ class DroneMap:
                     neighbors.append(other)
         return neighbors
 
+
 _KNOWN_ZONE_KEYS = {"zone", "color", "max_drones"}
 _KNOWN_CONN_KEYS = {"max_link_capacity"}
 _ALL_KNOWN_KEYS = _KNOWN_ZONE_KEYS | _KNOWN_CONN_KEYS
@@ -120,7 +121,9 @@ def _extract_metadata(lineno: int, line: str) -> tuple[str, dict[str, str]]:
 
     open_idx = line.index("[")
     if not line.endswith("]"):
-        raise ValueError(f"Line {lineno}: metadata block is not properly closed.")
+        raise ValueError(
+            f"Line {lineno}: metadata block is not properly closed."
+            )
 
     body = line[:open_idx].strip()
     block_content = line[open_idx + 1:-1].strip()
@@ -131,6 +134,7 @@ def _extract_metadata(lineno: int, line: str) -> tuple[str, dict[str, str]]:
         raise ValueError(f"Line {lineno}: {exc}") from exc
 
     return body, meta
+
 
 def _parse_positive_int(lineno: int, value: str, field_name: str) -> int:
     """Parse a string as a positive integer or raise a clear ValueError."""
@@ -147,19 +151,23 @@ def _parse_positive_int(lineno: int, value: str, field_name: str) -> int:
 
 
 def _parse_int_coord(lineno: int, value: str, axis: str) -> int:
-    """Parse a coordinate string (may be negative) or raise a clear ValueError."""
+    """Parse a coordinate string (may be negative)
+    or raise a clear ValueError."""
     stripped = value.lstrip("-")
     if not stripped.isdigit():
         raise ValueError(
-            f"Line {lineno}: coordinate '{axis}' must be an integer, got '{value}'."
+            f"Line {lineno}: "
+            f"coordinate '{axis}' must be an integer, got '{value}'."
         )
     return int(value)
+
 
 def _parse_nb_drones(lineno: int, line: str) -> int:
     """Parse the 'nb_drones: N' line and return N."""
     if not line.startswith("nb_drones:"):
         raise ValueError(
-            f"Line {lineno}: first line must be 'nb_drones: <positive_integer>'."
+            f"Line {lineno}: first line"
+            "must be 'nb_drones: <positive_integer>'."
         )
     parts = line.split(":", 1)
     value = parts[1].strip()
@@ -217,15 +225,16 @@ def _parse_connection_line(
     # Expected: ["connection:", "A-B"]
     if len(tokens) != 2:
         raise ValueError(
-            f"Line {lineno}: connection expects 'connection: <zone1>-<zone2> [meta]'."
+            f"Line {lineno}: connection expects"
+            "'connection: <zone1>-<zone2> [meta]'."
         )
 
     pair = tokens[1]
     parts = pair.split("-")
     if len(parts) != 2 or not parts[0] or not parts[1]:
         raise ValueError(
-            f"Line {lineno}: connection '{pair}' must be exactly 'zone1-zone2' "
-            f"(zone names cannot contain dashes)."
+            f"Line {lineno}: connection '{pair}' must be exactly 'zone1-zone2'"
+            f" (zone names cannot contain dashes)."
         )
 
     zone_a, zone_b = parts[0], parts[1]
@@ -246,6 +255,7 @@ def _parse_connection_line(
         max_link_capacity=max_link_capacity,
     )
 
+
 class MapParser:
     """Read a .fly map file and produce a DroneMap instance."""
 
@@ -256,7 +266,8 @@ class MapParser:
         self._filepath = filepath
 
     def parse(self) -> DroneMap:
-        """Parse the file and return a DroneMap. Raise ValueError on any error."""
+        """Parse the file and return a DroneMap.
+        Raise ValueError on any error."""
         try:
             lines = self._read_lines()
             if not lines:
@@ -267,7 +278,8 @@ class MapParser:
             sys.exit(0)
 
     def _read_lines(self) -> list[tuple[int, str]]:
-        """Read file lines, strip comments and blank lines, keep line numbers."""
+        """Read file lines,
+        strip comments and blank lines, keep line numbers."""
         result: list[tuple[int, str]] = []
         with open(self._filepath, encoding="utf-8") as fh:
             for lineno, raw in enumerate(fh, start=1):
@@ -287,7 +299,8 @@ class MapParser:
         for lineno, line in lines[1:]:
             if line.startswith("nb_drones:"):
                 raise ValueError(
-                    f"Line {lineno}: 'nb_drones' must appear only on the first line."
+                    f"Line {lineno}:"
+                    "'nb_drones' must appear only on the first line."
                 )
             elif any(line.startswith(p) for p in self._ZONE_PREFIXES):
                 zone = _parse_zone_line(lineno, line)
@@ -320,11 +333,15 @@ class MapParser:
             )
         if zone.is_start:
             if drone_map.start_zone is not None:
-                raise ValueError(f"Line {lineno}: only one start_hub is allowed.")
+                raise ValueError(
+                    f"Line {lineno}: only one start_hub is allowed."
+                )
             drone_map.start_zone = zone.name
         if zone.is_end:
             if drone_map.end_zone is not None:
-                raise ValueError(f"Line {lineno}: only one end_hub is allowed.")
+                raise ValueError(
+                    f"Line {lineno}: only one end_hub is allowed."
+                )
             drone_map.end_zone = zone.name
         drone_map.zones[zone.name] = zone
 

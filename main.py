@@ -23,5 +23,7 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except (Exception, KeyboardInterrupt) as e:
+    except Exception as e:
         print(f"Error caught! {e}")
+    except KeyboardInterrupt:
+        print("Bye bye!")
