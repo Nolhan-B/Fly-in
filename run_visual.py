@@ -211,7 +211,7 @@ def run_visual(drone_map: DroneMap) -> None:
         done = sum(1 for d in sim.drones if d.current_zone == sim.end_zone)
 
         if finished:
-            msg = (f"✓  DONE   Turns: {turn}"
+            msg = (f"DONE   Turns: {turn}"
 
                    f"   Drones: {done}/{drone_map.nb_drones}")
             surf = font_big.render(msg, True, FINISH_COLOR)
